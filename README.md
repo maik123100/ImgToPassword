@@ -16,7 +16,11 @@ To use the `PasswordHasher` program, you need to provide the following command-l
 Here's an example command to run the program:
 
 ```bash
-./PasswordHasher -f passwords.txt -c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{}|–…·.,<>+~*#" -l 12
+./PasswordHasher -f passwords.txt -c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" -l 12
+```
+There is also a std character list one can use by:
+```bash
+./PasswordHasher -f file.*(any file) -c std -l <length>
 ```
 
 Make sure to replace `passwords.txt` with the path to your password file, and adjust the character array and length according to your requirements.

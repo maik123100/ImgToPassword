@@ -1,9 +1,14 @@
-
 #include <stdio.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#if defined (sha256depc)
 #include <openssl/sha.h>
+#elif defined (EVP)
+#include <openssl/evp.h>
+#endif
 
 void customHash(const char *filePth, const char *charArr, size_t passwordLen){
     FILE *fd = fopen(filePth,"rb");
@@ -11,6 +16,8 @@ void customHash(const char *filePth, const char *charArr, size_t passwordLen){
         fprintf(stderr,"Error opening file!");
         return;
     }
+
+#if defined(sha256depc)
 
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -31,6 +38,55 @@ void customHash(const char *filePth, const char *charArr, size_t passwordLen){
         printf("%c", charArr[byte %charCount]);
     }
     printf("\n");
+#elif defined (EVP)
+   EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    if(mdctx==NULL){
+        fprintf(stderr, "\033[1;31mError: Failed init of EVP_MD_CTX!\033[0m\n");
+        return;
+    }
+    
+    if(!EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL )){
+        fprintf(stderr, "\033[1;31mError: Failed init of SHA-256 Digest!\033[0m\n");
+        return;
+    }
+
+    unsigned char byte;
+    size_t curBytesRead;
+    
+    while (1) {
+        curBytesRead=fread(&byte, sizeof(unsigned char), 1, fd);
+        if(curBytesRead!=1){
+            if(feof(fd)){
+                break;
+            }else{
+                fprintf(stderr, "\033[1;31mError: Failed to read from File!\033[0m\n");
+                EVP_MD_CTX_free(mdctx);
+                return;
+            }
+        }
+        if(EVP_DigestUpdate(mdctx, &byte, 1)!=1){
+            fprintf(stderr, "\033[1;31mError: Failed to Update SHA-256 digest!\033[0m\n");
+            EVP_MD_CTX_free(mdctx);
+            return;
+        }
+    }
+    unsigned int mdLen;
+    unsigned char mdValue[EVP_MAX_MD_SIZE];
+    if(!(EVP_DigestFinal_ex(mdctx, mdValue, &mdLen))){
+        fprintf(stderr, "\033[1;31mError: Failed init of EVP_MD_CTX!\033[0m\n");
+        EVP_MD_CTX_free(mdctx);
+        return;
+    }    
+    size_t charCount=strlen(charArr);
+    for (size_t i=0; i < passwordLen; i++) {
+        byte = mdValue[i% mdLen];
+        printf("%c", charArr[byte %charCount]);
+    }
+    printf("\n");
+#elif defined (custom)
+#else
+    printf("Compiler Flag missing: either -DEVP,-Dcustom or -Dsha256depc");
+#endif
 }
 
 void printUsg() {

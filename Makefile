@@ -1,19 +1,27 @@
 # Variables
 CC ?= clang
-CFLAGS ?= -w
+CFLAGS ?= 
 LDFLAGS = -lssl -lcrypto
-TARGET = PasswordHasher
 SRC = PasswordHasher.c
 
 # Default target
-all: $(TARGET)
+all: sha256depc
 
-# Compile target
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+sha256depc: CFLAGS += -w
+sha256depc: TARGET = sha256depcPasswdHash
+sha256depc: $(SRC)
+	$(CC) $(CFLAGS) -Dsha256depc -o $(TARGET) $(SRC) $(LDFLAGS)
+
+EVP: TARGET = EVP_PasswdHash
+EVP: $(SRC)
+	$(CC) $(CFLAGS) -DEVP -o $(TARGET) $(SRC) $(LDFLAGS)
+
+custom: TARGET = customPasswdHash
+custom: $(SRC)
+	$(CC) $(CFLAGS) -Dcustom -o $(TARGET) $(SRC)
 
 # Clean target
 clean:
-	rm -f $(TARGET)
+	rm -f sha256depcPasswdHash EVP_PasswdHash customPasswdHash
 
-.PHONY: all clean
+.PHONY: clean

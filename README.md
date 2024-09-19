@@ -31,10 +31,10 @@ Here's an example command to run the program:
 ./PasswordHasher -f passwords.txt -c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" -l 12
 ```
 
-There is also a standard character list you can use by:
+There is also a standard character list you can use by (without -c <CharArray> std list will be used):
 
 ```bash
-./PasswordHasher -f file.*(any file) -c std -l <length>
+./PasswordHasher -f file.*(any file) -l <length>
 ```
 
 Make sure to replace `passwords.txt` with the path to your password file, and adjust the character array and length according to your requirements.

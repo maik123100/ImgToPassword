@@ -70,6 +70,7 @@ void customHash(const char *filePth, const char *charArr, size_t passwordLen){
             return;
         }
     }
+    fclose(fd);
     unsigned int mdLen;
     unsigned char mdValue[EVP_MAX_MD_SIZE];
     if(!(EVP_DigestFinal_ex(mdctx, mdValue, &mdLen))){
@@ -84,6 +85,31 @@ void customHash(const char *filePth, const char *charArr, size_t passwordLen){
     }
     printf("\n");
 #elif defined (custom)
+    int output[passwordLen];
+    for(size_t i=0;i<passwordLen;i++){
+        output[i]=0;
+    }
+    int curposition=0;
+    size_t charCount=strlen(charArr);
+    while(1){
+        unsigned char byte;
+        size_t curBytesRead = fread(&byte, sizeof(unsigned char), 1, fd);
+        if(curBytesRead!=1){
+            if(feof(fd)){
+                break;
+            }else{
+                fprintf(stderr, "\033[1;31mError: Failed to read from File!\033[0m\n");
+                return;
+            }
+        }
+        output[curposition]=(output[curposition]+byte)%charCount;
+        curposition=(curposition+1)%passwordLen;
+    }
+    fclose(fd);
+    for (size_t i=0; i<passwordLen; i++) {
+        printf("%c",charArr[output[i]]);
+    }
+    printf("\n");
 #else
     printf("Compiler Flag missing: either -DEVP,-Dcustom or -Dsha256depc");
 #endif

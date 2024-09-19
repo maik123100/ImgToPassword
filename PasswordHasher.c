@@ -137,11 +137,7 @@ int main(int argc,char* argv[]){
                 filePth = optarg;
                 break;
             case 'c':
-                if(strcmp(optarg, "std") != 0){
-                    charArr = optarg;
-                }else{
-                    charArr=stdPswdChars;
-                }
+                charArr = optarg;
                 break;
             case 'l':
                 passwdLength = atoi(optarg);
@@ -155,10 +151,13 @@ int main(int argc,char* argv[]){
         } 
     }
     
-    if (!filePth || !charArr || passwdLength <= 0) {
+    if (!filePth || passwdLength <= 0) {
         fprintf(stderr, "\033[1;31mError: Missing input parameters!\033[0m\n");
         printUsg();
         return 1;
+    }
+    if(!charArr){
+        charArr=stdPswdChars;
     }
 
     customHash(filePth, charArr, passwdLength);
